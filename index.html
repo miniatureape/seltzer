@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" href="css/lib/codemirror.css" />
+        <script src="js/lib/codemirror.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+    </head>
+    <body>
+        <textarea id="editor"></textarea>
+        <script>
+            var socket;
+            var editor = CodeMirror.fromTextArea(document.getElementById('editor'), { mode: "text/html" });
+            socket = io.connect('http://localhost');
+        </script>
+    </body>
+</html>
+

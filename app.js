@@ -12,7 +12,23 @@ app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
 });
 
-Users = {
+app.get('/create', function (req, res) {
+  res.sendfile(__dirname + '/index.html');
+});
+
+app.get('/room/:room', function (req, res) {
+  res.sendfile(__dirname + '/index.html');
+});
+
+var Rooms = {
+
+    exists: function() {
+        return true;
+    }
+
+}
+
+var Users = {
 
     activeUser: null,
     usersNeedingContent: [],
@@ -44,12 +60,16 @@ Users = {
 
 io.sockets.on('connection', function (socket) {
 
-    socket.on('user:new', function(desiredName) {
+    socket.on('user:new', function(data) {
 
-        if (Users.nameExists(desiredName)) {
-            socket.emit('user:name-exists', desiredName);
+        if (!Rooms.exists(data.room)) {
+            console.log('room does not exist');
+        }
+
+        if (Users.nameExists(data.desiredName)) {
+            socket.emit('user:name-exists', data.desiredName);
         } else {
-            var user = Users.create(desiredName, socket);
+            var user = Users.create(data.desiredName, socket);
             var activeUser = Users.getActive();
 
             if (activeUser) {

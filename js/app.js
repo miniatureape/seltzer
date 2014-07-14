@@ -1,11 +1,15 @@
 (function() {
 
-    var socket,
-        editor,
-        user = null,
-        desiredName = null;
+    var Router = require('./Router.js');
+    var Controller = require('./Controller.js');
 
-    desiredName = prompt('Choose a user name:');
+    var socket = io.connect('http://localhost');
+    var router = new Router();
+
+    var controller = new Controller(socket);
+    controller.init(router);
+
+    /*
 
     editor = CodeMirror(document.body);
 
@@ -14,8 +18,6 @@
             socket.emit('editor:changed', changes);
         }
     });
-
-    socket = io.connect('http://localhost');
 
     socket.on('connect', function() {
         if (!user) {
@@ -62,6 +64,7 @@
     socket.on('editor:changed', function(args) {
         console.log('changed', args);
     });
+    */
     
 
 })()

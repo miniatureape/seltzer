@@ -1,13 +1,18 @@
-(function() {
+var Router = require('./Router.js');
+var Controller = require('./Controller.js');
 
-    var Router = require('./Router.js');
-    var Controller = require('./Controller.js');
+window.app = new Backbone.Marionette.Application();
 
-    var socket = io.connect('http://localhost');
-    var router = new Router();
+app.show = function() {
+    console.log('called');
+};
 
-    var controller = new Controller(socket);
-    controller.init(router);
+var socket = io.connect('http://localhost');
+var router = new Router();
+
+var controller = new Controller(socket);
+controller.init(router);
+
 
     /*
 
@@ -65,6 +70,3 @@
         console.log('changed', args);
     });
     */
-    
-
-})()

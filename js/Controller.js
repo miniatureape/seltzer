@@ -30,6 +30,8 @@ Controller.prototype = {
     'route:room': function(room) {
         var roomModule = new RoomModule(this.socket);
         roomModule.start(room);
+        debugger;
+        app.show(roomModule.getLayout());
     }
 
 }

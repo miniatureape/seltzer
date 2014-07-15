@@ -31,6 +31,8 @@ Controller.prototype = {
     'route:room': function(room) {
         var roomModule = new RoomModule(this.socket);
         roomModule.start(room);
+        debugger;
+        app.show(roomModule.getLayout());
     }
 
 }
@@ -49,19 +51,23 @@ module.exports = Backbone.Router.extend({
 });
 
 },{}],3:[function(require,module,exports){
-(function() {
+var Router = require('./Router.js');
+var Controller = require('./Controller.js');
 
-    var Router = require('./Router.js');
-    var Controller = require('./Controller.js');
+window.app = new Backbone.Marionette.Application();
 
-    var socket = io.connect('http://localhost');
-    var router = new Router();
+app.show = function() {
+    console.log('called');
+};
 
-    var controller = new Controller(socket);
-    controller.init(router);
+var socket = io.connect('http://localhost');
+var router = new Router();
+
+var controller = new Controller(socket);
+controller.init(router);
+
 
     /*
-    desiredName = prompt('Choose a user name:');
 
     editor = CodeMirror(document.body);
 
@@ -117,11 +123,10 @@ module.exports = Backbone.Router.extend({
         console.log('changed', args);
     });
     */
-    
-
-})()
 
 },{"./Controller.js":1,"./Router.js":2}],4:[function(require,module,exports){
+var RoomLayout = require('../views/RoomLayout');
+
 var RoomModule = function(socket) {
     this.socket = socket;
 };
@@ -129,11 +134,14 @@ var RoomModule = function(socket) {
 RoomModule.prototype = {
 
     start: function(room) {
+
         this.room = room;
+
         _.bindAll.apply(_, [this].concat(_.functions(this)));
         this.socket.on('connect', this.requestNewUser);
         this.socket.on('user:created', this.userCreated);
         this.socket.on('room:404', this.room404);
+
     },
 
     requestNewUser: function(room) {
@@ -157,8 +165,15 @@ RoomModule.prototype = {
 
     },
 
+    getLayout: function() {
+        return new RoomLayout();
+    }
+
 };
 
 module.exports = RoomModule;
+
+},{"../views/RoomLayout":5}],5:[function(require,module,exports){
+module.exports = Backbone.Marionette.LayoutView;
 
 },{}]},{},[3])

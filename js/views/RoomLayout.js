@@ -1,1 +1,1 @@
-module.exports = Marionette.Layout;
+module.exports = Backbone.Marionette.LayoutView;

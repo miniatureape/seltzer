@@ -31,8 +31,7 @@ Controller.prototype = {
     'route:room': function(room) {
         var roomModule = new RoomModule(this.socket);
         roomModule.start(room);
-        debugger;
-        app.show(roomModule.getLayout());
+        app.showBody(roomModule.getLayout());
     }
 
 }
@@ -51,14 +50,18 @@ module.exports = Backbone.Router.extend({
 });
 
 },{}],3:[function(require,module,exports){
-var Router = require('./Router.js');
+var Router     = require('./Router.js');
 var Controller = require('./Controller.js');
+var AppLayout  = require('./views/AppLayout.js');
 
 window.app = new Backbone.Marionette.Application();
+app.addRegions({ appRegion: '#app' });
+var appLayout = new AppLayout();
+app.appRegion.show(appLayout);
 
-app.show = function() {
-    console.log('called');
-};
+app.showBody = function(view) {
+    app.appRegion.currentView.body.show(view);
+}
 
 var socket = io.connect('http://localhost');
 var router = new Router();
@@ -124,7 +127,7 @@ controller.init(router);
     });
     */
 
-},{"./Controller.js":1,"./Router.js":2}],4:[function(require,module,exports){
+},{"./Controller.js":1,"./Router.js":2,"./views/AppLayout.js":5}],4:[function(require,module,exports){
 var RoomLayout = require('../views/RoomLayout');
 
 var RoomModule = function(socket) {
@@ -173,7 +176,23 @@ RoomModule.prototype = {
 
 module.exports = RoomModule;
 
-},{"../views/RoomLayout":5}],5:[function(require,module,exports){
-module.exports = Backbone.Marionette.LayoutView;
+},{"../views/RoomLayout":6}],5:[function(require,module,exports){
+
+var AppLayout = Backbone.Marionette.LayoutView.extend({
+
+    template: '#app-layout-tpl',
+
+    regions: {
+        body: '#app-body',
+    }
+
+});
+
+module.exports = AppLayout;
+
+},{}],6:[function(require,module,exports){
+module.exports = Backbone.Marionette.LayoutView.extend({
+    template: '#room-layout-tpl'
+});
 
 },{}]},{},[3])

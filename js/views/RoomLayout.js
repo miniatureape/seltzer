@@ -1,1 +1,3 @@
-module.exports = Backbone.Marionette.LayoutView;
+module.exports = Backbone.Marionette.LayoutView.extend({
+    template: '#room-layout-tpl'
+});

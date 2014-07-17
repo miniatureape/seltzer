@@ -10,11 +10,25 @@
         <script src="/js/lib/backbone.marionette.js"></script>
     </head>
     <body>
+
         <div id="app"></div>
+
         <div class="mask">
             <div class="overlay"></div>
         </div>
-        <script type="text/html" id=""></script>
+
+        <script type="text/html" id="app-layout-tpl">
+            <header></header>
+            <div id="app-body"></div>
+            <footer></footer>
+        </script>
+
+        <script type="text/html" id="room-layout-tpl">
+            <div data-editors class="editors"></div>
+            <div data-preview-pane class="preview-pane"></div>
+            <div data-user-list class="user-list"></div>
+        </script>
+
         <script src="/js/build/app.js"></script>
     </body>
 </html>

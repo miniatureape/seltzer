@@ -2,6 +2,7 @@
 <html>
     <head>
         <link rel="stylesheet" href="/css/lib/codemirror.css" />
+        <link rel="stylesheet" href="/css/base.css" />
         <script src="/js/lib/codemirror.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="/js/lib/jquery-2.1.1.js"></script>
@@ -24,7 +25,16 @@
         </script>
 
         <script type="text/html" id="room-layout-tpl">
-            <div data-editors class="editors"></div>
+            <div data-editors class="editors">
+                <ul data-editor-nav>
+                    <li data-trigger="js-editor">js</li>
+                    <li data-trigger="html-editor">html</li>
+                    <li data-trigger="css-editor">css</li>
+                </ul>
+                <div class="editor" data-js-editor></div>
+                <div class="editor" data-html-editor></div>
+                <div class="editor" data-css-editor></div>
+            </div>
             <div data-preview-pane class="preview-pane"></div>
             <div data-user-list class="user-list"></div>
         </script>

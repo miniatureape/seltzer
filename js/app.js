@@ -17,7 +17,6 @@ var router = new Router();
 var controller = new Controller(socket);
 controller.init(router);
 
-
     /*
 
     editor = CodeMirror(document.body);

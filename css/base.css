@@ -1,0 +1,7 @@
+.editors .editor {
+    display: none;
+}
+
+.editors .editor.active {
+    display: block;
+}

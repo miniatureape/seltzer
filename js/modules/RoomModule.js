@@ -9,8 +9,10 @@ RoomModule.prototype = {
     start: function(room) {
 
         this.room = room;
+        this.user = null;
 
         _.bindAll.apply(_, [this].concat(_.functions(this)));
+
         this.socket.on('connect', this.requestNewUser);
         this.socket.on('user:created', this.userCreated);
         this.socket.on('room:404', this.room404);
@@ -24,10 +26,11 @@ RoomModule.prototype = {
             room: room,
             desiredName: desiredName
         });
+
     },
 
     userCreated: function(newUser) {
-        console.log(newUser);
+        this.user = newUser;
     },
 
     room404: function(room) {
@@ -35,7 +38,8 @@ RoomModule.prototype = {
     },
 
     userNameTaken: function() {
-
+        console.error('User name is already taken');
+        this.requestNewUser();
     },
 
     getLayout: function() {

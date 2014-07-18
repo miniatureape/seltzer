@@ -19,6 +19,8 @@ Controller.prototype = {
         }
     },
 
+    // Routes
+
     'route:index': function() {
         console.log('index');
     },

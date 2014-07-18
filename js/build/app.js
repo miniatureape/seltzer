@@ -20,6 +20,8 @@ Controller.prototype = {
         }
     },
 
+    // Routes
+
     'route:index': function() {
         console.log('index');
     },
@@ -68,7 +70,6 @@ var router = new Router();
 
 var controller = new Controller(socket);
 controller.init(router);
-
 
     /*
 
@@ -139,8 +140,10 @@ RoomModule.prototype = {
     start: function(room) {
 
         this.room = room;
+        this.user = null;
 
         _.bindAll.apply(_, [this].concat(_.functions(this)));
+
         this.socket.on('connect', this.requestNewUser);
         this.socket.on('user:created', this.userCreated);
         this.socket.on('room:404', this.room404);
@@ -154,10 +157,11 @@ RoomModule.prototype = {
             room: room,
             desiredName: desiredName
         });
+
     },
 
     userCreated: function(newUser) {
-        console.log(newUser);
+        this.user = newUser;
     },
 
     room404: function(room) {
@@ -165,7 +169,8 @@ RoomModule.prototype = {
     },
 
     userNameTaken: function() {
-
+        console.error('User name is already taken');
+        this.requestNewUser();
     },
 
     getLayout: function() {
@@ -191,8 +196,35 @@ var AppLayout = Backbone.Marionette.LayoutView.extend({
 module.exports = AppLayout;
 
 },{}],6:[function(require,module,exports){
+
 module.exports = Backbone.Marionette.LayoutView.extend({
-    template: '#room-layout-tpl'
+
+    template: '#room-layout-tpl',
+
+    ui: {
+        editors: '[data-editors]',
+        jsEditor: '[data-js-editor]',
+        htmlEditor: '[data-html-editor]',
+        cssEditor: '[data-css-editor]',
+        nav: '[data-editor-nav]',
+    },
+
+    events: {
+        'click @ui.nav li': 'selectEditor'
+    },
+
+    onRender: function() {
+        var htmlEditor = CodeMirror(this.ui.htmlEditor.get(0));
+        var jsEditor = CodeMirror(this.ui.jsEditor.get(0));
+        var cssEditor = CodeMirror(this.ui.cssEditor.get(0));
+    },
+
+    selectEditor: function(e) {
+        this.ui.nav.find('[data-trigger]').removeClass('active');
+        var targetEditor = $(e.currentTarget).data('trigger');
+        this.ui.editors.find('[data-' + targetEditor + ']').addClass('active');
+    },
+
 });
 
 },{}]},{},[3])

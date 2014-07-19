@@ -17,25 +17,58 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     initialize: function(options) {
         this.socket = options.socket;
-        this.model = new Backbone.Model;
+        this.model = new Backbone.Model({active_editor: 'js'});
+        this.setupEvents();
+        this.setupSocket();
+        _.bindAll(this, 'setActiveEditor', 'handleHtmlChange', 'handleJsChange', 'handleCssChange');
+    },
+
+    setupEvents: function() {
         this.listenTo(this.model, 'change:active_editor', this.showEditor);
+    },
+
+    setupSocket: function() {
+        this.socket.on('editor:active', _.bind(this.setActiveEditor, this));
     },
 
     onRender: function() {
         var htmlEditor = CodeMirror(this.ui.htmlEditor.get(0));
+        htmlEditor.on('change', this.handleHtmlChange);
+
         var jsEditor = CodeMirror(this.ui.jsEditor.get(0));
+        jsEditor.on('change', this.handleJsChange);
+
         var cssEditor = CodeMirror(this.ui.cssEditor.get(0));
-        this.showEditor('js');
+        cssEditor.on('change', this.handleCssChange);
+
+        this.showEditor(this.model);
+    },
+
+    setActiveEditor: function(activeEditor) {
+        this.model.set('active_editor', activeEditor);
     },
 
     showEditor: function(editor) {
-        if (!_.isString(editor)) editor = editor.get('active_editor');
+        var editorName = editor.get('active_editor')
         this.ui.editors.find('[data-editor]').removeClass('active');
-        this.ui.editors.find('[data-editor="' + editor + '"]').addClass('active');
+        this.ui.editors.find('[data-editor="' + editorName + '"]').addClass('active');
+        this.socket.emit('editor:active', editorName);
     },
 
     selectEditor: function(e) {
-        this.model.set('active_editor', $(e.currentTarget).data('trigger'))
+        this.setActiveEditor($(e.currentTarget).data('trigger'));
+    },
+
+    handleHtmlChange: function(editor, changes) {
+        this.socket.emit('editor:changed:html', changes);
+    },
+
+    handleCssChange: function(editor, changes) {
+        this.socket.emit('editor:changed:css', changes);
+    },
+
+    handleJsChange: function(editor, changes) {
+        this.socket.emit('editor:changed:js', changes);
     },
 
 });

@@ -1,8 +1,19 @@
 .editors .editor {
     display: none;
-    border: 1px solid black;
 }
 
 .editors .editor.active {
     display: block;
+}
+
+.editor.js {
+    border: 1px solid black;
+}
+
+.editor.html {
+    border: 1px solid red;
+}
+
+.editor.css {
+    border: 1px solid blue;
 }

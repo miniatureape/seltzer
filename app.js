@@ -58,6 +58,12 @@ var Users = {
     }
 }
 
+function relay(name, socket) {
+    socket.on(name, function(args) {
+        socket.broadcast.emit(name, args);
+    });
+}
+
 io.sockets.on('connection', function (socket) {
 
     socket.on('user:new', function(data) {
@@ -95,8 +101,7 @@ io.sockets.on('connection', function (socket) {
 
     });
 
-    socket.on('editor:changed', function(args) {
-        socket.broadcast.emit('editor:changed', args);
-    });
+    relay('editor:changed', socket);
+    relay('editor:active', socket);
 
 });

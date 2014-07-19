@@ -8,6 +8,6 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('default', function() {
-    gulp.watch('js/app.js', ['scripts']);
+    gulp.watch('js/**/*.js', ['scripts']);
 })
 

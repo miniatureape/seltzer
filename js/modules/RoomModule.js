@@ -2,6 +2,8 @@ var RoomLayout = require('../views/RoomLayout');
 
 var RoomModule = function(socket) {
     this.socket = socket;
+    this.layout = new RoomLayout({socket: this.socket});
+
 };
 
 RoomModule.prototype = {
@@ -10,7 +12,6 @@ RoomModule.prototype = {
 
         this.room = room;
         this.user = null;
-
         _.bindAll.apply(_, [this].concat(_.functions(this)));
 
         this.socket.on('connect', this.requestNewUser);
@@ -43,7 +44,7 @@ RoomModule.prototype = {
     },
 
     getLayout: function() {
-        return new RoomLayout();
+        return this.layout;
     }
 
 };

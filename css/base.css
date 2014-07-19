@@ -1,5 +1,6 @@
 .editors .editor {
     display: none;
+    border: 1px solid black;
 }
 
 .editors .editor.active {

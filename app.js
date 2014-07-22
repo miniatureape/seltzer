@@ -79,7 +79,8 @@ io.sockets.on('connection', function (socket) {
             var activeUser = Users.getActive();
 
             if (activeUser) {
-                activeUser.socket.emit('editor:get-contents');
+                console.log('requesting: providing contents');
+                activeUser.socket.emit('editor:provide-contents');
             } else {
                 Users.activeUser = user;
                 user.data.isActive = true;
@@ -89,12 +90,14 @@ io.sockets.on('connection', function (socket) {
         }
     });
 
-    socket.on('editor:active-contents', function(content) {
+    socket.on('editor:provide-contents', function(contents) {
+        console.log('active user providing contents');
 
         var users = Users.needsContent();
 
         for (var i = 0; i < users.length; i++) {
-            users[i].socket.emit('editor:active-contents', content);
+            console.log('setting contents');
+            users[i].socket.emit('editor:set-contents', contents);
         }
 
         Users.needingContent = [];

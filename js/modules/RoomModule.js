@@ -9,15 +9,18 @@ var RoomModule = function(socket) {
 RoomModule.prototype = {
 
     start: function(room) {
-
         this.room = room;
         this.user = null;
+
         _.bindAll.apply(_, [this].concat(_.functions(this)));
 
+        this.setupSocket();
+    },
+
+    setupSocket: function() {
         this.socket.on('connect', this.requestNewUser);
         this.socket.on('user:created', this.userCreated);
         this.socket.on('room:404', this.room404);
-
     },
 
     requestNewUser: function(room) {
@@ -31,7 +34,11 @@ RoomModule.prototype = {
     },
 
     userCreated: function(newUser) {
+        console.log(newUser);
         this.user = newUser;
+        if (!this.user.isActive) {
+            this.socket.emit('editor:get-contents');
+        }
     },
 
     room404: function(room) {

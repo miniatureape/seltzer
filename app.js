@@ -1,12 +1,51 @@
-
 var express = require('express'),
-    app = express(), 
-    server = require('http').createServer(app), 
-    io = require('socket.io').listen(server);
+    app      = express(),
+    server   = require('http').createServer(app),
+    io       = require('socket.io').listen(server),
+    _        = require('underscore'),
+    Backbone = require('./js/lib/backbone'),
+    User     = require('./js/models/User'),
+    Users    = require('./js/models/Users');
 
 server.listen(8000);
 app.use("/css", express.static(__dirname + '/css'));
 app.use("/js", express.static(__dirname + '/js'));
+
+var Rooms = {
+    exists: function() {
+        return true;
+    }
+}
+
+var users = new Users();
+var sockets = {};
+
+function getSocket(user) {
+    return sockets[user.get('id')];
+}
+
+
+// Listen to socket event name on socket, broadcasting its
+// message to all other users when heard.
+function relay(name, socket) {
+    socket.on(name, function(args) {
+        socket.broadcast.emit(name, args);
+    });
+}
+
+// message to all other users when heard from active user.
+function relayIfActiveUser(name, socket) {
+    socket.on(name, function(args) {
+        user = users.get(socket.id);
+
+        if (user && user.get('active')) {
+            socket.broadcast.emit(name, args);
+        }
+
+    });
+}
+
+// Endpoints
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
@@ -20,51 +59,12 @@ app.get('/room/:room', function (req, res) {
   res.sendfile(__dirname + '/index.html');
 });
 
-var Rooms = {
-
-    exists: function() {
-        return true;
-    }
-
-}
-
-var Users = {
-
-    activeUser: null,
-    usersNeedingContent: [],
-
-    nameExists: function() {
-        return false;
-    },
-
-    create: function(name, socket) {
-        var user = {
-            socket: socket,
-            data: {
-                name: name,
-                isActive: false
-            }
-        };
-        this.usersNeedingContent.push(user);
-        return user;
-    },
-
-    getActive: function() {
-        return this.activeUser;
-    },
-
-    needsContent: function() {
-        return this.usersNeedingContent;
-    }
-}
-
-function relay(name, socket) {
-    socket.on(name, function(args) {
-        socket.broadcast.emit(name, args);
-    });
-}
-
 io.sockets.on('connection', function (socket) {
+
+    sockets[socket.id] = socket;
+
+    relay('editor:changed', socket);
+    relayIfActiveUser('editor:active', socket);
 
     socket.on('user:new', function(data) {
 
@@ -72,39 +72,39 @@ io.sockets.on('connection', function (socket) {
             console.log('room does not exist');
         }
 
-        if (Users.nameExists(data.desiredName)) {
+        if (users.nameExists(data.desiredName)) {
             socket.emit('user:name-exists', data.desiredName);
         } else {
-            var user = Users.create(data.desiredName, socket);
-            var activeUser = Users.getActive();
+
+            var user = new User({
+                id: socket.id,
+                name: data.desiredName,
+            }); 
+            users.add(user);
+
+            var activeUser = users.findWhere({active: true});
 
             if (activeUser) {
-                console.log('requesting: providing contents');
                 activeUser.socket.emit('editor:provide-contents');
             } else {
-                Users.activeUser = user;
-                user.data.isActive = true;
+                users.setActive(user);
             }
 
-            user.socket.emit('user:created', user.data);
+            getSocket(user).emit('user:created', user.toJSON());
         }
     });
 
     socket.on('editor:provide-contents', function(contents) {
-        console.log('active user providing contents');
+        var users = users.needingContent();
 
-        var users = Users.needsContent();
-
-        for (var i = 0; i < users.length; i++) {
-            console.log('setting contents');
-            users[i].socket.emit('editor:set-contents', contents);
-        }
-
-        Users.needingContent = [];
-
+        _.each(users, function(user) {
+            getSocket(user).emit('editor:set-contents', contents);
+            user.set('needs_content', false);
+        });
     });
 
-    relay('editor:changed', socket);
-    relay('editor:active', socket);
+    socket.on('user:list', function() {
+        socket.emit('user:set', users.toJSON())
+    });
 
 });

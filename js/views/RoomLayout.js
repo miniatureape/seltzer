@@ -1,7 +1,12 @@
+var UserListLayout = require('../views/UserListLayout');
 
 module.exports = Backbone.Marionette.LayoutView.extend({
 
     template: '#room-layout-tpl',
+
+    regions: {
+        userList: '[data-user-list]',
+    },
 
     ui: {
         editors: '[data-editors]',
@@ -19,8 +24,14 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         _.bindAll.apply(_, [this].concat(_.functions(this)));
         this.socket = options.socket;
         this.model = new Backbone.Model({active_editor: 'js'});
+        this.users = options.users;
         this.setupEvents();
         this.setupSocket();
+    },
+
+    onShow: function() {
+        this.getRegion('userList').show(new UserListLayout({users: this.users}));
+        console.log('showing room module');
     },
 
     setupSocket: function() {
@@ -86,6 +97,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     handleEditorProvideContents: function(content) {
         this.socket.emit('editor:provide-contents', this.getEditorContents());
+        this.socket.emit('editor:active', this.model.get('active_editor'));
     },
 
     getEditorContents: function() {

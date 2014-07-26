@@ -1,16 +1,23 @@
 var RoomLayout = require('../views/RoomLayout');
+var Users      = require('../models/Users');
 
 var RoomModule = function(socket) {
     this.socket = socket;
-    this.layout = new RoomLayout({socket: this.socket});
-
 };
 
 RoomModule.prototype = {
 
     start: function(room) {
+
         this.room = room;
         this.user = null;
+
+        this.users = new Users();
+
+        this.layout = new RoomLayout({
+            socket: this.socket,
+            users: this.users
+        });
 
         _.bindAll.apply(_, [this].concat(_.functions(this)));
 
@@ -18,9 +25,15 @@ RoomModule.prototype = {
     },
 
     setupSocket: function() {
-        this.socket.on('connect', this.requestNewUser);
-        this.socket.on('user:created', this.userCreated);
+        this.socket.on('connect', this.handleOnConnect);
         this.socket.on('room:404', this.room404);
+        this.socket.on('user:created', this.userCreated);
+        this.socket.on('user:set', this.handleSetUsers);
+    },
+
+    handleOnConnect: function(room) {
+        this.requestNewUser(room);
+        this.getUserList(room);
     },
 
     requestNewUser: function(room) {
@@ -33,10 +46,14 @@ RoomModule.prototype = {
 
     },
 
+    getUserList: function() {
+        this.socket.emit('user:list');
+    },
+
     userCreated: function(newUser) {
-        console.log(newUser);
-        this.user = newUser;
-        if (!this.user.isActive) {
+        this.user = new User(newUser);
+        this.users.add(this.user);
+        if (!this.user.get('active')) {
             this.socket.emit('editor:get-contents');
         }
     },
@@ -52,8 +69,12 @@ RoomModule.prototype = {
 
     getLayout: function() {
         return this.layout;
-    }
+    }, 
 
+    handleSetUsers: function(users) {
+        console.log('got users', users);
+        this.users.reset(users);
+    }
 };
 
 module.exports = RoomModule;

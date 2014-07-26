@@ -1,0 +1,12 @@
+Next: 4, 5
+
+1. When the active user types, it shows up on everyone's machine.
+2. When an inactive user types, nothing happens.
+3. The active user's active tab is displayed on everyone's tabs.
+4. The list of user is in the sidebar.
+5. When a new user comes on she is shown in sidebar, and leaving too.
+5. Active user and teacher are marked in the sidebar.
+6. If the teach clicks on a user, that user becomes the active user.
+7. Paste, backspacing etc work as expected.
+8. The user can see a preview off the tabs.
+9. Tabs can be prepulated with files from a github repo.

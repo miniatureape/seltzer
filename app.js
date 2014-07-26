@@ -85,19 +85,20 @@ io.sockets.on('connection', function (socket) {
             var activeUser = users.findWhere({active: true});
 
             if (activeUser) {
-                activeUser.socket.emit('editor:provide-contents');
+                getSocket(activeUser).emit('editor:provide-contents');
             } else {
                 users.setActive(user);
             }
 
             getSocket(user).emit('user:created', user.toJSON());
+            socket.broadcast.emit('user:set', users.toJSON())
         }
     });
 
     socket.on('editor:provide-contents', function(contents) {
-        var users = users.needingContent();
+        var usersNeedingContent = users.needingContent();
 
-        _.each(users, function(user) {
+        _.each(usersNeedingContent, function(user) {
             getSocket(user).emit('editor:set-contents', contents);
             user.set('needs_content', false);
         });

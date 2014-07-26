@@ -1,11 +1,11 @@
-var UserListLayout = require('../views/UserListLayout');
+var UserListLayout = require('./UserListLayout');
 
 module.exports = Backbone.Marionette.LayoutView.extend({
 
     template: '#room-layout-tpl',
 
     regions: {
-        userList: '[data-user-list]',
+        userList: '[data-user-list-region]',
     },
 
     ui: {
@@ -31,7 +31,6 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     onShow: function() {
         this.getRegion('userList').show(new UserListLayout({users: this.users}));
-        console.log('showing room module');
     },
 
     setupSocket: function() {

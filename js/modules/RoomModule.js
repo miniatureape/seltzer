@@ -1,26 +1,22 @@
 var RoomLayout = require('../views/RoomLayout');
 var Users      = require('../models/Users');
+var User       = require('../models/User');
 
 var RoomModule = function(socket) {
     this.socket = socket;
+    this.user = null;
+    this.users = new Users();
+    this.layout = new RoomLayout({
+        socket: this.socket,
+        users: this.users
+    });
 };
 
 RoomModule.prototype = {
 
     start: function(room) {
-
         this.room = room;
-        this.user = null;
-
-        this.users = new Users();
-
-        this.layout = new RoomLayout({
-            socket: this.socket,
-            users: this.users
-        });
-
         _.bindAll.apply(_, [this].concat(_.functions(this)));
-
         this.setupSocket();
     },
 
@@ -37,7 +33,8 @@ RoomModule.prototype = {
     },
 
     requestNewUser: function(room) {
-        var desiredName = prompt('Name?');
+        // var desiredName = prompt('Name?');
+        var desiredName = "justin" + Math.floor(Math.random() * 1000);
 
         this.socket.emit('user:new', {
             room: room,
@@ -52,7 +49,6 @@ RoomModule.prototype = {
 
     userCreated: function(newUser) {
         this.user = new User(newUser);
-        this.users.add(this.user);
         if (!this.user.get('active')) {
             this.socket.emit('editor:get-contents');
         }

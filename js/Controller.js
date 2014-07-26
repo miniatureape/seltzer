@@ -31,8 +31,8 @@ Controller.prototype = {
 
     'route:room': function(room) {
         var roomModule = new RoomModule(this.socket);
-        roomModule.start(room);
         app.showBody(roomModule.getLayout());
+        roomModule.start(room);
     }
 
 }

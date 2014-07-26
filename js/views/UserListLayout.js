@@ -1,4 +1,7 @@
+var UserList = require('./UserList');
+
 module.exports = Backbone.Marionette.LayoutView.extend({
+
     className: 'user-list',
 
     template: '#userlist-layout-tpl',
@@ -9,16 +12,11 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     initialize: function(options) {
         this.users = options.users;
-        this.listenTo(this.users, 'add', this.addUser);
-        this.listenTo(this.users, 'remove', this.removeUser);
+        this.listenTo(this.users, 'add remove', this.render);
     },
 
-    removeUser: function() {
-        console.log('remove user');
+    onShow: function() {
+        this.getRegion('list').show(new UserList({collection: this.users}))
     },
-
-    addUser: function() {
-        console.log('add user');
-    }
 
 });

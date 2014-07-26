@@ -32,8 +32,8 @@ Controller.prototype = {
 
     'route:room': function(room) {
         var roomModule = new RoomModule(this.socket);
-        roomModule.start(room);
         app.showBody(roomModule.getLayout());
+        roomModule.start(room);
     }
 
 }
@@ -70,63 +70,6 @@ var router = new Router();
 
 var controller = new Controller(socket);
 controller.init(router);
-
-    /*
-
-    editor = CodeMirror(document.body);
-
-    editor.on('change', function(editor, changes) {
-        if (socket && socket.emit) {
-            socket.emit('editor:changed', changes);
-        }
-    });
-
-    socket.on('connect', function() {
-        if (!user) {
-            socket.emit('user:new', desiredName);
-        }
-    });
-
-    socket.on('connect_error', function() {
-        console.log('connect_error', arguments);
-    });
-
-    socket.on('reconnect', function() {
-        console.log('reconnect', arguments);
-    });
-
-    socket.on('reconnect_attempt', function() {
-        console.log('reconnect_attempt', arguments);
-    });
-
-    socket.on('reconnecting', function() {
-        console.log('reconnecting', arguments);
-    });
-
-    socket.on('reconnect_failed', function() {
-        console.log('reconnect_failed', arguments);
-    });
-
-    socket.on('user:created', function(newUser) {
-        user = newUser;
-        console.log('user is', user);
-    });
-
-    socket.on('editor:get-contents', function() {
-        var content = editor.getValue();
-        console.log('requested content', content);
-        socket.emit('editor:active-contents', content);
-    });
-
-    socket.on('editor:active-contents', function(contents) {
-        console.log('setting contents', contents);
-        editor.setValue(contents);
-    });
-
-    socket.on('editor:changed', function(args) {
-        console.log('changed', args);
-    });
-    */
 
 },{"./Controller.js":1,"./Router.js":2,"./views/AppLayout.js":8}],4:[function(require,module,exports){
 //     Backbone.js 1.1.2
@@ -1736,7 +1679,7 @@ controller.init(router);
 
 }));
 
-},{"underscore":11}],5:[function(require,module,exports){
+},{"underscore":13}],5:[function(require,module,exports){
 var Backbone = require('../lib/backbone');
 
 module.exports = Backbone.Model.extend({
@@ -1770,7 +1713,7 @@ var Users = Backbone.Collection.extend({
     },
 
     needingContent: function() {
-        return this.find({needs_content: true});
+        return this.where({needs_content: true});
     },
 
 });
@@ -1780,27 +1723,23 @@ module.exports = Users;
 },{"../lib/backbone":4,"./User":5}],7:[function(require,module,exports){
 var RoomLayout = require('../views/RoomLayout');
 var Users      = require('../models/Users');
+var User       = require('../models/User');
 
 var RoomModule = function(socket) {
     this.socket = socket;
+    this.user = null;
+    this.users = new Users();
+    this.layout = new RoomLayout({
+        socket: this.socket,
+        users: this.users
+    });
 };
 
 RoomModule.prototype = {
 
     start: function(room) {
-
         this.room = room;
-        this.user = null;
-
-        this.users = new Users();
-
-        this.layout = new RoomLayout({
-            socket: this.socket,
-            users: this.users
-        });
-
         _.bindAll.apply(_, [this].concat(_.functions(this)));
-
         this.setupSocket();
     },
 
@@ -1817,7 +1756,8 @@ RoomModule.prototype = {
     },
 
     requestNewUser: function(room) {
-        var desiredName = prompt('Name?');
+        // var desiredName = prompt('Name?');
+        var desiredName = "justin" + Math.floor(Math.random() * 1000);
 
         this.socket.emit('user:new', {
             room: room,
@@ -1832,7 +1772,6 @@ RoomModule.prototype = {
 
     userCreated: function(newUser) {
         this.user = new User(newUser);
-        this.users.add(this.user);
         if (!this.user.get('active')) {
             this.socket.emit('editor:get-contents');
         }
@@ -1859,7 +1798,7 @@ RoomModule.prototype = {
 
 module.exports = RoomModule;
 
-},{"../models/Users":6,"../views/RoomLayout":9}],8:[function(require,module,exports){
+},{"../models/User":5,"../models/Users":6,"../views/RoomLayout":9}],8:[function(require,module,exports){
 
 var AppLayout = Backbone.Marionette.LayoutView.extend({
 
@@ -1874,14 +1813,14 @@ var AppLayout = Backbone.Marionette.LayoutView.extend({
 module.exports = AppLayout;
 
 },{}],9:[function(require,module,exports){
-var UserListLayout = require('../views/UserListLayout');
+var UserListLayout = require('./UserListLayout');
 
 module.exports = Backbone.Marionette.LayoutView.extend({
 
     template: '#room-layout-tpl',
 
     regions: {
-        userList: '[data-user-list]',
+        userList: '[data-user-list-region]',
     },
 
     ui: {
@@ -1907,7 +1846,6 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     onShow: function() {
         this.getRegion('userList').show(new UserListLayout({users: this.users}));
-        console.log('showing room module');
     },
 
     setupSocket: function() {
@@ -1988,8 +1926,23 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
 });
 
-},{"../views/UserListLayout":10}],10:[function(require,module,exports){
+},{"./UserListLayout":11}],10:[function(require,module,exports){
+var UserNameView = require('./UserNameView');
+
+module.exports = Backbone.Marionette.CollectionView.extend({
+
+    childView: UserNameView,
+
+    initialize: function() {
+        this.listenTo(this.collection, 'add remove', this.render);
+    }
+});
+
+},{"./UserNameView":12}],11:[function(require,module,exports){
+var UserList = require('./UserList');
+
 module.exports = Backbone.Marionette.LayoutView.extend({
+
     className: 'user-list',
 
     template: '#userlist-layout-tpl',
@@ -2000,21 +1953,21 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     initialize: function(options) {
         this.users = options.users;
-        this.listenTo(this.users, 'add', this.addUser);
-        this.listenTo(this.users, 'remove', this.removeUser);
+        this.listenTo(this.users, 'add remove', this.render);
     },
 
-    removeUser: function() {
-        console.log('remove user');
+    onShow: function() {
+        this.getRegion('list').show(new UserList({collection: this.users}))
     },
-
-    addUser: function() {
-        console.log('add user');
-    }
 
 });
 
-},{}],11:[function(require,module,exports){
+},{"./UserList":10}],12:[function(require,module,exports){
+module.exports = Backbone.Marionette.ItemView.extend({
+    template: '#user-name-tpl',
+});
+
+},{}],13:[function(require,module,exports){
 //     Underscore.js 1.6.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors

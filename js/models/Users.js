@@ -18,7 +18,7 @@ var Users = Backbone.Collection.extend({
     },
 
     needingContent: function() {
-        return this.find({needs_content: true});
+        return this.where({needs_content: true});
     },
 
 });

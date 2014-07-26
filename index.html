@@ -36,15 +36,15 @@
                 <div class="editor css" data-editor="css"></div>
             </div>
             <div data-preview-pane class="preview-pane"></div>
-            <div data-user-list class="user-list"></div>
+            <div data-user-list-region class="user-list"></div>
         </script>
 
         <script type="text/html" id="userlist-layout-tpl">
             <ul data-user-list></ul>
         </script>
 
-        <script type="text/html" id="user-tpl">
-            <li><%= username %></li>
+        <script type="text/html" id="user-name-tpl">
+            <li class="<% if(active) { %>active<% } %>"><%= name %></li>
         </script>
 
         <script src="/js/build/app.js"></script>

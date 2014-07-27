@@ -1,4 +1,5 @@
 var UserListLayout = require('./UserListLayout');
+var PreviewPaneLayout = require('./PreviewPaneLayout');
 
 module.exports = Backbone.Marionette.LayoutView.extend({
 
@@ -6,6 +7,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     regions: {
         userList: '[data-user-list-region]',
+        previewPane: '[data-preview-pane]',
     },
 
     ui: {
@@ -22,16 +24,20 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     initialize: function(options) {
         _.bindAll.apply(_, [this].concat(_.functions(this)));
+
         this.socket = options.socket;
         this.model = new Backbone.Model({active_editor: 'js'});
+
         this.user = options.user;
         this.users = options.users;
+
         this.setupEvents();
         this.setupSocket();
     },
 
     onShow: function() {
         this.getRegion('userList').show(new UserListLayout({users: this.users}));
+        this.getRegion('previewPane').show(new PreviewPaneLayout());
         this.setEditorMode(this.user);
     },
 
@@ -47,6 +53,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     setupEvents: function() {
         this.listenTo(this.model, 'change:active_editor', this.showEditor);
         this.listenTo(this.user, 'change:active', this.setEditorMode)
+        reqres.setHandler('editor:contents', this.getEditorContents);
     },
 
     onRender: function() {

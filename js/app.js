@@ -3,6 +3,8 @@ var Controller = require('./Controller.js');
 var AppLayout  = require('./views/AppLayout.js');
 
 window.app = new Backbone.Marionette.Application();
+window.reqres = new Backbone.Wreqr.RequestResponse();
+
 app.addRegions({ appRegion: '#app' });
 var appLayout = new AppLayout();
 app.appRegion.show(appLayout);

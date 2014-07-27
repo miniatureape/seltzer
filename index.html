@@ -43,8 +43,27 @@
             <ul data-user-list></ul>
         </script>
 
+        <script type="text/html" id="preview-pane-tpl">
+            <div>Preview Pane <span data-run-btn>Run</span></div>
+            <iframe src="http://localhost:8000/" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts"></iframe>
+        </script>
+
         <script type="text/html" id="user-name-tpl">
             <li class="<% if(active) { %>active<% } %>"><%= name %></li>
+        </script>
+
+        <script type="text/html" id="iframe-doc-tpl">
+            <!doctype html>
+            <html>
+                <head>
+                    <style>
+                    <%= css %>
+                    </style>
+                </head>
+                <body>
+                    <%= html %>
+                </body>
+            </html>
         </script>
 
         <script src="/js/build/app.js"></script>

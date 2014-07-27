@@ -24,7 +24,6 @@ function getSocket(user) {
     return sockets[user.get('id')];
 }
 
-
 // Listen to socket event name on socket, broadcasting its
 // message to all other users when heard.
 function relay(name, socket) {
@@ -63,7 +62,10 @@ io.sockets.on('connection', function (socket) {
 
     sockets[socket.id] = socket;
 
-    relay('editor:changed', socket);
+    relayIfActiveUser('editor:changed:js', socket);
+    relayIfActiveUser('editor:changed:html', socket);
+    relayIfActiveUser('editor:changed:css', socket);
+
     relayIfActiveUser('editor:active', socket);
 
     socket.on('user:new', function(data) {
@@ -73,7 +75,9 @@ io.sockets.on('connection', function (socket) {
         }
 
         if (users.nameExists(data.desiredName)) {
+
             socket.emit('user:name-exists', data.desiredName);
+
         } else {
 
             var user = new User({

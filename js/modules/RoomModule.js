@@ -4,11 +4,12 @@ var User       = require('../models/User');
 
 var RoomModule = function(socket) {
     this.socket = socket;
-    this.user = null;
+    this.user = new User();
     this.users = new Users();
     this.layout = new RoomLayout({
         socket: this.socket,
-        users: this.users
+        users: this.users,
+        user: this.user
     });
 };
 
@@ -48,7 +49,7 @@ RoomModule.prototype = {
     },
 
     userCreated: function(newUser) {
-        this.user = new User(newUser);
+        this.user.set(newUser);
         if (!this.user.get('active')) {
             this.socket.emit('editor:get-contents');
         }

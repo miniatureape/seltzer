@@ -59,6 +59,7 @@ RoomModule.prototype = {
 
     userCreated: function(newUser) {
         this.user.set(newUser);
+        this.user.set('is_logged_in_user', true);
         if (!this.user.get('active')) {
             this.socket.emit('editor:get-contents');
         }
@@ -69,7 +70,6 @@ RoomModule.prototype = {
     },
 
     userNameTaken: function() {
-        console.error('User name is already taken');
         this.requestNewUser();
     },
 
@@ -78,8 +78,9 @@ RoomModule.prototype = {
     }, 
 
     handleSetUsers: function(users) {
-        console.log('got users', users);
         this.users.reset(users);
+        var loggedInUser = this.users.get(this.user.get('id'));
+        loggedInUser.set('is_logged_in_user', true);
     }
 };
 

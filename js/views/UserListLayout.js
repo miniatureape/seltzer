@@ -10,11 +10,15 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     initialize: function(options) {
         this.users = options.users;
+        this.user = options.user;
         this.listenTo(this.users, 'add remove', this.render);
     },
 
     onShow: function() {
-        this.getRegion('list').show(new UserList({collection: this.users}))
+        this.getRegion('list').show(new UserList({
+            collection: this.users,
+            user: this.user
+        }))
     },
 
 });

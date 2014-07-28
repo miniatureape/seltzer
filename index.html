@@ -51,7 +51,10 @@
         </script>
 
         <script type="text/html" id="user-name-tpl">
-            <li class="user-row <% if(active) { %>active<% } %>"><%= name %></li>
+            <li class="user-row 
+                <% if(active) { %>active<% } %>
+                <% if(is_logged_in_user) { %>logged_in_user<% } %>
+            "><%= name %></li>
         </script>
 
         <script type="text/html" id="iframe-doc-tpl">

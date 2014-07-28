@@ -1689,7 +1689,9 @@ module.exports = Backbone.Model.extend({
     defaults: {
         name: '',
         active: false,
+        leader: false,
         needs_content: true,
+        is_logged_in_user: false,
     },
 
 });
@@ -1784,6 +1786,7 @@ RoomModule.prototype = {
 
     userCreated: function(newUser) {
         this.user.set(newUser);
+        this.user.set('is_logged_in_user', true);
         if (!this.user.get('active')) {
             this.socket.emit('editor:get-contents');
         }
@@ -1794,7 +1797,6 @@ RoomModule.prototype = {
     },
 
     userNameTaken: function() {
-        console.error('User name is already taken');
         this.requestNewUser();
     },
 
@@ -1803,8 +1805,9 @@ RoomModule.prototype = {
     }, 
 
     handleSetUsers: function(users) {
-        console.log('got users', users);
         this.users.reset(users);
+        var loggedInUser = this.users.get(this.user.get('id'));
+        loggedInUser.set('is_logged_in_user', true);
     }
 };
 
@@ -2031,7 +2034,10 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     onShow: function() {
-        this.getRegion('userList').show(new UserListLayout({users: this.users}));
+        this.getRegion('userList').show(new UserListLayout({
+            users: this.users,
+            user: this.user
+        }));
         this.getRegion('previewPane').show(new PreviewPaneLayout());
         this.getRegion('editors').show(new EditorLayout({
             socket: this.socket,
@@ -2056,9 +2062,12 @@ module.exports = Backbone.Marionette.CollectionView.extend({
 
     childView: UserNameView,
 
-    initialize: function() {
+    initialize: function(options) {
+        this.user = options.user;
         this.listenTo(this.collection, 'add remove', this.render);
-    }
+        this.listenTo(this.collection, 'change:is_logged_in_user', this.render);
+    },
+
 });
 
 },{"./UserNameView":14}],13:[function(require,module,exports){
@@ -2074,11 +2083,15 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     initialize: function(options) {
         this.users = options.users;
+        this.user = options.user;
         this.listenTo(this.users, 'add remove', this.render);
     },
 
     onShow: function() {
-        this.getRegion('list').show(new UserList({collection: this.users}))
+        this.getRegion('list').show(new UserList({
+            collection: this.users,
+            user: this.user
+        }))
     },
 
 });

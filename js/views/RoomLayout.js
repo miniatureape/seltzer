@@ -24,7 +24,10 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     onShow: function() {
-        this.getRegion('userList').show(new UserListLayout({users: this.users}));
+        this.getRegion('userList').show(new UserListLayout({
+            users: this.users,
+            user: this.user
+        }));
         this.getRegion('previewPane').show(new PreviewPaneLayout());
         this.getRegion('editors').show(new EditorLayout({
             socket: this.socket,

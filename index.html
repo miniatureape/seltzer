@@ -24,18 +24,20 @@
         </script>
 
         <script type="text/html" id="room-layout-tpl">
+            <div data-file-list-region class="file-list"></div>
             <div data-user-list-region class="user-list"></div>
-            <div data-editors class="editors">
-                <ul data-editor-nav class="subhead editor-nav">
-                    <li class="trigger active" data-trigger="js">javascript</li>
-                    <li class="trigger" data-trigger="html">html</li>
-                    <li class="trigger" data-trigger="css">css</li>
-                </ul>
-                <div class="editor js" data-editor="js"></div>
-                <div class="editor html" data-editor="html"></div>
-                <div class="editor css" data-editor="css"></div>
-            </div>
+            <div data-editors class="editors"></div>
             <div data-preview-pane class="preview-pane"></div>
+        </script>
+        <script type="text/html" id="editor-layout-tpl">
+            <ul data-editor-nav class="subhead editor-nav">
+                <li class="trigger active" data-trigger="js">javascript</li>
+                <li class="trigger" data-trigger="html">html</li>
+                <li class="trigger" data-trigger="css">css</li>
+            </ul>
+            <div class="editor js" data-editor="js"></div>
+            <div class="editor html" data-editor="html"></div>
+            <div class="editor css" data-editor="css"></div>
         </script>
 
         <script type="text/html" id="userlist-layout-tpl">

@@ -1681,7 +1681,7 @@ controller.init(router);
 
 }));
 
-},{"underscore":14}],5:[function(require,module,exports){
+},{"underscore":15}],5:[function(require,module,exports){
 var Backbone = require('../lib/backbone');
 
 module.exports = Backbone.Model.extend({
@@ -1731,10 +1731,13 @@ var RoomModule = function(socket) {
     this.socket = socket;
     this.user = new User();
     this.users = new Users();
+    this.applicationState = new Backbone.Model;
+
     this.layout = new RoomLayout({
         socket: this.socket,
         users: this.users,
-        user: this.user
+        user: this.user,
+        applicationState: this.applicationState,
     });
 };
 
@@ -1751,11 +1754,17 @@ RoomModule.prototype = {
         this.socket.on('room:404', this.room404);
         this.socket.on('user:created', this.userCreated);
         this.socket.on('user:set', this.handleSetUsers);
+        this.socket.on('disconnect', this.handleOnDisconnect);
     },
 
     handleOnConnect: function(room) {
+        this.applicationState.set('connected', true);
         this.requestNewUser(room);
         this.getUserList(room);
+    },
+
+    handleOnDisconnect: function(room) {
+        this.applicationState.set('connected', false);
     },
 
     requestNewUser: function(room) {
@@ -1801,7 +1810,7 @@ RoomModule.prototype = {
 
 module.exports = RoomModule;
 
-},{"../models/User":5,"../models/Users":6,"../views/RoomLayout":10}],8:[function(require,module,exports){
+},{"../models/User":5,"../models/Users":6,"../views/RoomLayout":11}],8:[function(require,module,exports){
 
 var AppLayout = Backbone.Marionette.LayoutView.extend({
 
@@ -1818,55 +1827,7 @@ module.exports = AppLayout;
 },{}],9:[function(require,module,exports){
 module.exports = Backbone.Marionette.LayoutView.extend({
 
-    template: '#preview-pane-tpl',
-
-    ui: {
-        iframe: 'iframe',
-        runButton: '[data-run-btn]'
-    },
-
-    events: {
-        'click @ui.runButton': 'showPreview'
-    },
-
-    initialize: function() {
-        this.ifdTpl = _.template($('#iframe-doc-tpl').html());
-    },
-
-    onShow: function() {
-        console.log('iframe showing!');
-    },
-
-    showPreview: function() {
-        var contents = reqres.request('editor:contents');
-        this.setFrameContents(contents);
-    },
-
-    setFrameContents: function(contents) {
-        var ifd = this.ui.iframe.get(0).contentWindow.document;
-        ifd.open('text/html', 'replace');
-        ifd.write(this.ifdTpl(contents));
-        var scriptTag = "<script>" + contents.js + "</script>";
-        $(ifd.body).append(scriptTag);
-        ifd.close();
-    }
-
-});
-
-},{}],10:[function(require,module,exports){
-var UserListLayout = require('./UserListLayout');
-var PreviewPaneLayout = require('./PreviewPaneLayout');
-
-module.exports = Backbone.Marionette.LayoutView.extend({
-
-    className: 'room-module',
-
-    template: '#room-layout-tpl',
-
-    regions: {
-        userList: '[data-user-list-region]',
-        previewPane: '[data-preview-pane]',
-    },
+    template: '#editor-layout-tpl',
 
     ui: {
         editors: '[data-editors]',
@@ -1882,31 +1843,26 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     initialize: function(options) {
-        _.bindAll.apply(_, [this].concat(_.functions(this)));
-
         this.socket = options.socket;
         this.model = new Backbone.Model({active_editor: 'js'});
 
         this.user = options.user;
-        this.users = options.users;
 
         this.setupEvents();
         this.setupSocket();
     },
 
-    onShow: function() {
-        this.getRegion('userList').show(new UserListLayout({users: this.users}));
-        this.getRegion('previewPane').show(new PreviewPaneLayout());
-        this.setEditorMode(this.user);
+    onBoundSocket: function(eventName, fn) {
+        this.socket.on(eventName, _.bind(fn, this));
     },
 
     setupSocket: function() {
-        this.socket.on('editor:active', this.setActiveEditor);
-        this.socket.on('editor:set-contents', this.handleEditorSetContents);
-        this.socket.on('editor:provide-contents', this.handleEditorProvideContents);
-        this.socket.on('editor:changed:js', this.handleEditorChange);
-        this.socket.on('editor:changed:css', this.handleEditorChange);
-        this.socket.on('editor:changed:html', this.handleEditorChange);
+        this.onBoundSocket('editor:active', this.setActiveEditor);
+        this.onBoundSocket('editor:set-contents', this.handleEditorSetContents);
+        this.onBoundSocket('editor:provide-contents', this.handleEditorProvideContents);
+        this.onBoundSocket('editor:changed:js', this.handleEditorChange);
+        this.onBoundSocket('editor:changed:css', this.handleEditorChange);
+        this.onBoundSocket('editor:changed:html', this.handleEditorChange);
     },
 
     setupEvents: function() {
@@ -1914,7 +1870,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         this.listenTo(this.user, 'change:active', this.setEditorMode)
         reqres.setHandler('editor:contents', this.getEditorContents);
     },
-
+    
     onRender: function() {
         this.editors = {};
 
@@ -1922,27 +1878,31 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
         var htmlEditor = CodeMirror(this.ui.htmlEditor.get(0), options);
         this.editors.html = htmlEditor;
-        htmlEditor.on('change', this.handleHtmlChange);
+        htmlEditor.on('change', _.bind(this.handleHtmlChange, this));
 
         var jsEditor = CodeMirror(this.ui.jsEditor.get(0), options);
         this.editors.js = jsEditor;
-        jsEditor.on('change', this.handleJsChange);
+        jsEditor.on('change', _.bind(this.handleJsChange, this));
 
         var cssEditor = CodeMirror(this.ui.cssEditor.get(0), options);
         this.editors.css = cssEditor;
-        cssEditor.on('change', this.handleCssChange);
+        cssEditor.on('change', _.bind(this.handleCssChange, this));
 
         this.showEditor(this.model);
+    },
+
+    onShow: function() {
+        this.setEditorMode(this.user);
     },
 
     setActiveEditor: function(activeEditor) {
         this.model.set('active_editor', activeEditor);
     },
 
-    showEditor: function(editor) {
-        var editorName = editor.get('active_editor')
-        this.ui.editors.find('[data-editor]').removeClass('active');
-        this.ui.editors.find('[data-editor="' + editorName + '"]').addClass('active');
+    showEditor: function(editorState) {
+        var editorName = editorState.get('active_editor')
+        this.$el.find('[data-editor]').removeClass('active');
+        this.$el.find('[data-editor="' + editorName + '"]').addClass('active');
         this.socket.emit('editor:active', editorName);
     },
 
@@ -1951,7 +1911,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         $(e.currentTarget).addClass('active');
         this.setActiveEditor($(e.currentTarget).data('trigger'));
     },
-
+    
     handleHtmlChange: function(editor, changes) {
         var data = {editor: 'html', changes: changes};
         this.socket.emit('editor:changed:html', data);
@@ -2002,11 +1962,94 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         _.each(this.editors, function(editor) {
             editor.setOption('readOnly', !user.get('active'));
         })
+    },
+
+});
+
+},{}],10:[function(require,module,exports){
+module.exports = Backbone.Marionette.LayoutView.extend({
+
+    template: '#preview-pane-tpl',
+
+    ui: {
+        iframe: 'iframe',
+        runButton: '[data-run-btn]'
+    },
+
+    events: {
+        'click @ui.runButton': 'showPreview'
+    },
+
+    initialize: function() {
+        this.ifdTpl = _.template($('#iframe-doc-tpl').html());
+    },
+
+    onShow: function() {
+        console.log('iframe showing!');
+    },
+
+    showPreview: function() {
+        var contents = reqres.request('editor:contents');
+        this.setFrameContents(contents);
+    },
+
+    setFrameContents: function(contents) {
+        var ifd = this.ui.iframe.get(0).contentWindow.document;
+        ifd.open('text/html', 'replace');
+        ifd.write(this.ifdTpl(contents));
+        var scriptTag = "<script>" + contents.js + "</script>";
+        $(ifd.body).append(scriptTag);
+        ifd.close();
     }
 
 });
 
-},{"./PreviewPaneLayout":9,"./UserListLayout":12}],11:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
+var UserListLayout = require('./UserListLayout');
+var EditorLayout = require('./EditorLayout');
+var PreviewPaneLayout = require('./PreviewPaneLayout');
+
+module.exports = Backbone.Marionette.LayoutView.extend({
+
+    className: 'room-module',
+
+    template: '#room-layout-tpl',
+
+    regions: {
+        editors: '[data-editors]',
+        userList: '[data-user-list-region]',
+        previewPane: '[data-preview-pane]',
+    },
+
+    initialize: function(options) {
+        _.bindAll.apply(_, [this].concat(_.functions(this)));
+        this.socket = options.socket;
+        this.user = options.user;
+        this.users = options.users;
+        this.applicationState = options.applicationState;
+        this.setupEvents();
+    },
+
+    onShow: function() {
+        this.getRegion('userList').show(new UserListLayout({users: this.users}));
+        this.getRegion('previewPane').show(new PreviewPaneLayout());
+        this.getRegion('editors').show(new EditorLayout({
+            socket: this.socket,
+            user: this.user,
+        }));
+    },
+
+    setupEvents: function() {
+        this.listenTo(this.applicationState, 'change:connected', this.setConnectionStatus);
+    },
+
+    setConnectionStatus: function() {
+        this.$el.toggleClass('connected', this.applicationState.get('connected'));
+    },
+
+});
+
+},{"./EditorLayout":9,"./PreviewPaneLayout":10,"./UserListLayout":13}],12:[function(require,module,exports){
 var UserNameView = require('./UserNameView');
 
 module.exports = Backbone.Marionette.CollectionView.extend({
@@ -2018,7 +2061,7 @@ module.exports = Backbone.Marionette.CollectionView.extend({
     }
 });
 
-},{"./UserNameView":13}],12:[function(require,module,exports){
+},{"./UserNameView":14}],13:[function(require,module,exports){
 var UserList = require('./UserList');
 
 module.exports = Backbone.Marionette.LayoutView.extend({
@@ -2040,12 +2083,12 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
 });
 
-},{"./UserList":11}],13:[function(require,module,exports){
+},{"./UserList":12}],14:[function(require,module,exports){
 module.exports = Backbone.Marionette.ItemView.extend({
     template: '#user-name-tpl',
 });
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 //     Underscore.js 1.6.0
 //     http://underscorejs.org
 //     (c) 2009-2014 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors

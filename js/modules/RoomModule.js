@@ -6,10 +6,13 @@ var RoomModule = function(socket) {
     this.socket = socket;
     this.user = new User();
     this.users = new Users();
+    this.applicationState = new Backbone.Model;
+
     this.layout = new RoomLayout({
         socket: this.socket,
         users: this.users,
-        user: this.user
+        user: this.user,
+        applicationState: this.applicationState,
     });
 };
 
@@ -26,11 +29,17 @@ RoomModule.prototype = {
         this.socket.on('room:404', this.room404);
         this.socket.on('user:created', this.userCreated);
         this.socket.on('user:set', this.handleSetUsers);
+        this.socket.on('disconnect', this.handleOnDisconnect);
     },
 
     handleOnConnect: function(room) {
+        this.applicationState.set('connected', true);
         this.requestNewUser(room);
         this.getUserList(room);
+    },
+
+    handleOnDisconnect: function(room) {
+        this.applicationState.set('connected', false);
     },
 
     requestNewUser: function(room) {

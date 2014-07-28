@@ -2,8 +2,6 @@ var UserList = require('./UserList');
 
 module.exports = Backbone.Marionette.LayoutView.extend({
 
-    className: 'user-list',
-
     template: '#userlist-layout-tpl',
 
     regions: {

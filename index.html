@@ -19,37 +19,37 @@
         </div>
 
         <script type="text/html" id="app-layout-tpl">
-            <header></header>
             <div id="app-body"></div>
             <footer></footer>
         </script>
 
         <script type="text/html" id="room-layout-tpl">
+            <div data-user-list-region class="user-list"></div>
             <div data-editors class="editors">
-                <ul data-editor-nav>
-                    <li data-trigger="js">js</li>
-                    <li data-trigger="html">html</li>
-                    <li data-trigger="css">css</li>
+                <ul data-editor-nav class="subhead editor-nav">
+                    <li class="trigger active" data-trigger="js">javascript</li>
+                    <li class="trigger" data-trigger="html">html</li>
+                    <li class="trigger" data-trigger="css">css</li>
                 </ul>
                 <div class="editor js" data-editor="js"></div>
                 <div class="editor html" data-editor="html"></div>
                 <div class="editor css" data-editor="css"></div>
             </div>
             <div data-preview-pane class="preview-pane"></div>
-            <div data-user-list-region class="user-list"></div>
         </script>
 
         <script type="text/html" id="userlist-layout-tpl">
+            <header class="subhead">Seltzer</header>
             <ul data-user-list></ul>
         </script>
 
         <script type="text/html" id="preview-pane-tpl">
-            <div>Preview Pane <span data-run-btn>Run</span></div>
-            <iframe src="http://localhost:8000/" sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts"></iframe>
+            <div class="subhead">Output <span data-run-btn>Run</span></div>
+            <iframe sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts" frameborder="0"></iframe>
         </script>
 
         <script type="text/html" id="user-name-tpl">
-            <li class="<% if(active) { %>active<% } %>"><%= name %></li>
+            <li class="user-row <% if(active) { %>active<% } %>"><%= name %></li>
         </script>
 
         <script type="text/html" id="iframe-doc-tpl">

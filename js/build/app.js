@@ -1859,6 +1859,8 @@ var PreviewPaneLayout = require('./PreviewPaneLayout');
 
 module.exports = Backbone.Marionette.LayoutView.extend({
 
+    className: 'room-module',
+
     template: '#room-layout-tpl',
 
     regions: {
@@ -1872,10 +1874,11 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         htmlEditor: '[data-editor="html"]',
         cssEditor: '[data-editor="css"]',
         nav: '[data-editor-nav]',
+        triggers: '[data-trigger]'
     },
 
     events: {
-        'click @ui.nav li': 'selectEditor'
+        'click @ui.nav [data-trigger]': 'selectEditor'
     },
 
     initialize: function(options) {
@@ -1915,15 +1918,17 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     onRender: function() {
         this.editors = {};
 
-        var htmlEditor = CodeMirror(this.ui.htmlEditor.get(0));
+        var options = { lineNumbers: true };
+
+        var htmlEditor = CodeMirror(this.ui.htmlEditor.get(0), options);
         this.editors.html = htmlEditor;
         htmlEditor.on('change', this.handleHtmlChange);
 
-        var jsEditor = CodeMirror(this.ui.jsEditor.get(0));
+        var jsEditor = CodeMirror(this.ui.jsEditor.get(0), options);
         this.editors.js = jsEditor;
         jsEditor.on('change', this.handleJsChange);
 
-        var cssEditor = CodeMirror(this.ui.cssEditor.get(0));
+        var cssEditor = CodeMirror(this.ui.cssEditor.get(0), options);
         this.editors.css = cssEditor;
         cssEditor.on('change', this.handleCssChange);
 
@@ -1942,6 +1947,8 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     selectEditor: function(e) {
+        this.ui.triggers.removeClass('active');
+        $(e.currentTarget).addClass('active');
         this.setActiveEditor($(e.currentTarget).data('trigger'));
     },
 
@@ -2015,8 +2022,6 @@ module.exports = Backbone.Marionette.CollectionView.extend({
 var UserList = require('./UserList');
 
 module.exports = Backbone.Marionette.LayoutView.extend({
-
-    className: 'user-list',
 
     template: '#userlist-layout-tpl',
 

@@ -112,4 +112,10 @@ io.sockets.on('connection', function (socket) {
         socket.emit('user:set', users.toJSON())
     });
 
+    socket.on('disconnect', function() {
+        var user = users.get(socket.id);
+        users.remove(user);
+        delete sockets[socket.id];
+    });
+
 });

@@ -3,7 +3,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     template: '#editor-layout-tpl',
 
     ui: {
-        editors: '[data-editors]',
+        editors: '[data-editor]',
         jsEditor: '[data-editor="js"]',
         htmlEditor: '[data-editor="html"]',
         cssEditor: '[data-editor="css"]',
@@ -41,7 +41,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     setupEvents: function() {
         this.listenTo(this.model, 'change:active_editor', this.showEditor);
         this.listenTo(this.user, 'change:active', this.setEditorMode)
-        reqres.setHandler('editor:contents', this.getEditorContents);
+        reqres.setHandler('editor:contents', _.bind(this.getEditorContents, this));
     },
     
     onRender: function() {

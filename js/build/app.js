@@ -1833,7 +1833,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     template: '#editor-layout-tpl',
 
     ui: {
-        editors: '[data-editors]',
+        editors: '[data-editor]',
         jsEditor: '[data-editor="js"]',
         htmlEditor: '[data-editor="html"]',
         cssEditor: '[data-editor="css"]',
@@ -1871,7 +1871,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     setupEvents: function() {
         this.listenTo(this.model, 'change:active_editor', this.showEditor);
         this.listenTo(this.user, 'change:active', this.setEditorMode)
-        reqres.setHandler('editor:contents', this.getEditorContents);
+        reqres.setHandler('editor:contents', _.bind(this.getEditorContents, this));
     },
     
     onRender: function() {
@@ -1974,6 +1974,8 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     template: '#preview-pane-tpl',
 
+    className: 'preview-layout',
+
     ui: {
         iframe: 'iframe',
         runButton: '[data-run-btn]'
@@ -1997,6 +1999,8 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     setFrameContents: function(contents) {
+        debugger;
+        contents = _.defaults(contents, {js: '', html: '', css: ''});
         var ifd = this.ui.iframe.get(0).contentWindow.document;
         ifd.open('text/html', 'replace');
         ifd.write(this.ifdTpl(contents));
@@ -2062,6 +2066,8 @@ module.exports = Backbone.Marionette.CollectionView.extend({
 
     childView: UserNameView,
 
+    tagName: 'div',
+
     initialize: function(options) {
         this.user = options.user;
         this.listenTo(this.collection, 'add remove', this.render);
@@ -2098,6 +2104,8 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
 },{"./UserList":12}],14:[function(require,module,exports){
 module.exports = Backbone.Marionette.ItemView.extend({
+    className: 'user-row',
+    tagName: 'a',
     template: '#user-name-tpl',
 });
 

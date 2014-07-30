@@ -4,6 +4,8 @@ module.exports = Backbone.Marionette.CollectionView.extend({
 
     childView: UserNameView,
 
+    tagName: 'div',
+
     initialize: function(options) {
         this.user = options.user;
         this.listenTo(this.collection, 'add remove', this.render);

@@ -2,6 +2,7 @@
 <html>
     <head>
         <link rel="stylesheet" href="/css/lib/codemirror.css" />
+        <!-- <link rel="stylesheet" href="/css/lib/basscss.css" /> -->
         <link rel="stylesheet" href="/css/base.css" />
         <script src="/js/lib/codemirror.js"></script>
         <script src="/socket.io/socket.io.js"></script>
@@ -25,36 +26,33 @@
 
         <script type="text/html" id="room-layout-tpl">
             <div data-file-list-region class="file-list"></div>
-            <div data-user-list-region class="user-list"></div>
+            <div data-user-list-region class="user-list-region"></div>
             <div data-editors class="editors"></div>
             <div data-preview-pane class="preview-pane"></div>
         </script>
         <script type="text/html" id="editor-layout-tpl">
-            <ul data-editor-nav class="subhead editor-nav">
-                <li class="trigger active" data-trigger="js">javascript</li>
-                <li class="trigger" data-trigger="html">html</li>
-                <li class="trigger" data-trigger="css">css</li>
-            </ul>
+            <div data-editor-nav class="nav-inline editor-nav border-bottom">
+                <a class="trigger active" data-trigger="js">javascript</a>
+                <a class="trigger" data-trigger="html">html</a>
+                <a class="trigger" data-trigger="css">css</a>
+            </div>
             <div class="editor js" data-editor="js"></div>
             <div class="editor html" data-editor="html"></div>
             <div class="editor css" data-editor="css"></div>
         </script>
 
         <script type="text/html" id="userlist-layout-tpl">
-            <header class="subhead">Seltzer</header>
-            <ul data-user-list></ul>
+            <h3 class="logo border-bottom">Seltzer</h3>
+            <div data-user-list class="user-list"></div>
         </script>
 
         <script type="text/html" id="preview-pane-tpl">
-            <div class="subhead">Output <span data-run-btn>Run</span></div>
+            <div class="nav-inline border-bottom"><a data-run-btn>Run</a></div>
             <iframe sandbox="allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts" frameborder="0"></iframe>
         </script>
 
         <script type="text/html" id="user-name-tpl">
-            <li class="user-row 
-                <% if(active) { %>active<% } %>
-                <% if(is_logged_in_user) { %>logged_in_user<% } %>
-            "><%= name %></li>
+            <%= name %>
         </script>
 
         <script type="text/html" id="iframe-doc-tpl">

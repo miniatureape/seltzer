@@ -14,6 +14,26 @@ ul, ol {
     list-style-type: none;
 }
 
+.nav-inline a {
+    display: table-cell;
+    line-height: 36px;
+    padding: 0 10px;
+    background-color: #ffe;
+}
+
+.nav-inline a.active {
+    background-color: #fee;
+}
+
+.logo {
+    line-height: 36px;
+    padding: 0 10px;
+}
+
+.controls {
+    line-height: 36px;
+}
+
 #app {
     height: 100%;
     width: 100%;
@@ -23,53 +43,41 @@ ul, ol {
     right: 0;
 }
 
-header {
-    background: #eee;
-    font-weight: bold;
-    border-bottom: 2px solid blue;
-}
-
 .room-module {
     position: relative;
+    height: 500px;
 }
 
-.subhead {
-    line-height: 20px; padding: 10px;
-    background: #ddd;
+.border-bottom {
+    border-bottom: 1px solid #eee;
 }
 
-.editor-nav {
-    overflow: hidden;
-    list-style: none;
-}
-
-.editor-nav .trigger {
+.user-list-region {
     float: left;
-    margin-right: 20px;
-    cursor: pointer;
-}
-
-.editor-nav .trigger.active {
-    background: #666;
-    color: #fefefe;
+    width: 15%;
+    border-right: 1px solid #eee;
+    height: 100%;
 }
 
 .user-list {
-    width: 10%;
-    background: #eee;
-    position: absolute;
-    top: 0;
-    left: 0;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.user-row {
+    display: block;
+    border-bottom: 1px solid #eee;
+    padding: 7px;
+}
+
+.user-row:last-child {
+    border-bottom: 0;
 }
 
 .editors {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 10%;
-    width: 40%;
-    background: #fef;
-    height: 100%;
+    float: left;
+    width: 35%;
 }
 
 .editors .editor {
@@ -81,14 +89,8 @@ header {
 }
 
 .preview-pane {
-    position: absolute;
+    float: left;
     width: 50%;
-    left: 50%;
-    top: 0;
-}
-
-.user-list .user-row {
-    padding: 5px 10px;
 }
 
 .user-list .user-row.active:after {

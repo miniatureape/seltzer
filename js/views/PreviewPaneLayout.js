@@ -2,6 +2,8 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     template: '#preview-pane-tpl',
 
+    className: 'preview-layout',
+
     ui: {
         iframe: 'iframe',
         runButton: '[data-run-btn]'
@@ -25,6 +27,8 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     setFrameContents: function(contents) {
+        debugger;
+        contents = _.defaults(contents, {js: '', html: '', css: ''});
         var ifd = this.ui.iframe.get(0).contentWindow.document;
         ifd.open('text/html', 'replace');
         ifd.write(this.ifdTpl(contents));

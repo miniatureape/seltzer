@@ -1881,17 +1881,28 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
         var htmlEditor = CodeMirror(this.ui.htmlEditor.get(0), options);
         this.editors.html = htmlEditor;
-        htmlEditor.on('change', _.bind(this.handleHtmlChange, this));
 
         var jsEditor = CodeMirror(this.ui.jsEditor.get(0), options);
         this.editors.js = jsEditor;
-        jsEditor.on('change', _.bind(this.handleJsChange, this));
 
         var cssEditor = CodeMirror(this.ui.cssEditor.get(0), options);
         this.editors.css = cssEditor;
-        cssEditor.on('change', _.bind(this.handleCssChange, this));
+
+        this.bindEditorEvent('js', jsEditor, 'change', this.handleChange); 
+        this.bindEditorEvent('css', cssEditor, 'change', this.handleChange); 
+        this.bindEditorEvent('html', htmlEditor, 'change', this.handleChange); 
 
         this.showEditor(this.model);
+    },
+
+    bindEditorEvent: function(editorName, editor, eventName, callback) {
+        callback = _.partial(callback, editorName);
+        editor.on(eventName, _.bind(callback, this));
+    },
+
+    handleChange: function(editorName, editor, changes) {
+        var data = {editor: editorName, changes: changes};
+        this.socket.emit('editor:changed:html', data);
     },
 
     onShow: function() {
@@ -1915,21 +1926,6 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         this.ui.triggers.removeClass('active');
         $(e.currentTarget).addClass('active');
         this.setActiveEditor($(e.currentTarget).data('trigger'));
-    },
-    
-    handleHtmlChange: function(editor, changes) {
-        var data = {editor: 'html', changes: changes};
-        this.socket.emit('editor:changed:html', data);
-    },
-
-    handleCssChange: function(editor, changes) {
-        var data = {editor: 'css', changes: changes};
-        this.socket.emit('editor:changed:css', data);
-    },
-
-    handleJsChange: function(editor, changes) {
-        var data = {editor: 'js', changes: changes};
-        this.socket.emit('editor:changed:js', data);
     },
 
     handleEditorSetContents: function(content) {

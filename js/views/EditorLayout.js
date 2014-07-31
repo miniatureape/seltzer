@@ -77,6 +77,8 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         this.$el.find('[data-editor]').removeClass('active');
         this.$el.find('[data-editor="' + editorName + '"]').addClass('active');
         this.socket.emit('editor:active', editorName);
+        this.editors[editorName].focus();
+        this.editors[editorName].refresh();
     },
 
     selectEditor: function(e) {

@@ -20,6 +20,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         this.model = new Backbone.Model({active_editor: 'js'});
 
         this.user = options.user;
+        this.editors = {};
 
         this.setupEvents();
         this.setupSocket();
@@ -33,9 +34,8 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         this.onBoundSocket('editor:active', this.setActiveEditor);
         this.onBoundSocket('editor:set-contents', this.handleEditorSetContents);
         this.onBoundSocket('editor:provide-contents', this.handleEditorProvideContents);
-        this.onBoundSocket('editor:changed:js', this.handleEditorChange);
-        this.onBoundSocket('editor:changed:css', this.handleEditorChange);
-        this.onBoundSocket('editor:changed:html', this.handleEditorChange);
+        this.onBoundSocket('editor:changed', this.handleEditorChange);
+        this.onBoundSocket('editor:cursor-change', this.handleCursorChange);
     },
 
     setupEvents: function() {
@@ -45,7 +45,6 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
     
     onRender: function() {
-        this.editors = {};
 
         var options = { lineNumbers: true };
 
@@ -58,9 +57,10 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         var cssEditor = CodeMirror(this.ui.cssEditor.get(0), options);
         this.editors.css = cssEditor;
 
-        this.bindEditorEvent('js', jsEditor, 'change', this.handleChange); 
-        this.bindEditorEvent('css', cssEditor, 'change', this.handleChange); 
-        this.bindEditorEvent('html', htmlEditor, 'change', this.handleChange); 
+        _.each(this.editors, function(editor, editorName){
+            this.bindEditorEvent(editorName, editor, 'change', this.handleChange);
+            this.bindEditorEvent(editorName, editor, 'cursorActivity', this.handleCursorActivity);
+        }, this);
 
         this.showEditor(this.model);
     },
@@ -72,7 +72,13 @@ module.exports = Backbone.Marionette.LayoutView.extend({
 
     handleChange: function(editorName, editor, changes) {
         var data = {editor: editorName, changes: changes};
-        this.socket.emit('editor:changed:html', data);
+        this.socket.emit('editor:changed', data);
+    },
+
+    handleCursorActivity: function(editorName, editor, changes) {
+        var changes = editor.getCursor();
+        var data = {editor: editorName, changes: changes};
+        this.socket.emit('editor:cursor-change', data);
     },
 
     onShow: function() {
@@ -80,11 +86,14 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     setActiveEditor: function(activeEditor) {
+        console.log('activeEditor', activeEditor);
         this.model.set('active_editor', activeEditor);
     },
 
     showEditor: function(editorState) {
         var editorName = editorState.get('active_editor')
+        this.$el.find('[data-trigger]').removeClass('active');
+        this.$el.find('[data-trigger="' + editorName + '"]').addClass('active');
         this.$el.find('[data-editor]').removeClass('active');
         this.$el.find('[data-editor="' + editorName + '"]').addClass('active');
         this.socket.emit('editor:active', editorName);
@@ -127,6 +136,11 @@ module.exports = Backbone.Marionette.LayoutView.extend({
             data.changes.to,
             data.changes.origin
         )
+    },
+
+    handleCursorChange: function(data) {
+        var editor = this.editors[data.editor];
+        editor.setCursor(data.changes);
     },
 
     setEditorMode: function(user) {

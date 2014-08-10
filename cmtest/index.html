@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>CodeMirror Tests</title>
+  <link rel="stylesheet" href="../css/lib/codemirror.css" />
+  <script src="../js/lib/codemirror.js"></script>
+  <script src="../js/lib/jquery-2.1.1.js"></script>
+  <style>
+    .editor {
+        border: 1px solid #eee;
+    }
+    
+  </style>
+</head>
+<body>
+
+    <div class='editor' id="editor-one"></div>
+    <div class='editor' id="editor-two"></div>
+
+    <script>
+        var editorOne = new CodeMirror(document.getElementById('editor-one'));
+        var editorTwo = new CodeMirror(document.getElementById('editor-two'));
+
+        editorOne.on('change', function(cm, changes) {
+            editorTwo.replaceRange(
+                changes.text.join('\n'),
+                changes.from,
+                changes.to,
+                changes.origin
+            );
+        });
+
+        editorOne.on('cursorActivity', function(cm) {
+            editorTwo.setSelection(cm.getCursor(true), cm.getCursor(false));
+            console.log('ca', cm.getCursor(true), cm.getCursor(false));
+        });
+
+        console.log(editorOne, editorTwo);
+    </script>
+
+</body>
+</html>

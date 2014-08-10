@@ -76,7 +76,16 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     handleCursorActivity: function(editorName, editor, changes) {
-        var changes = editor.getCursor();
+
+        if (!editor.somethingSelected()) {
+            return;
+        }
+
+        var changes = {
+            start: editor.getCursor(true),
+            end: editor.getCursor(false)
+        };
+
         var data = {editor: editorName, changes: changes};
         this.socket.emit('editor:cursor-change', data);
     },
@@ -139,8 +148,9 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     handleCursorChange: function(data) {
+        console.log('cursor changed', data);
         var editor = this.editors[data.editor];
-        editor.setCursor(data.changes);
+        editor.setSelection(data.changes.start, data.changes.end);
     },
 
     setEditorMode: function(user) {

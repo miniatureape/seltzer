@@ -64,6 +64,7 @@ io.sockets.on('connection', function (socket) {
 
     relayIfActiveUser('editor:changed', socket);
     relayIfActiveUser('editor:cursor-change', socket);
+    relayIfActiveUser('editor:selection-change', socket);
 
     relayIfActiveUser('editor:active', socket);
 

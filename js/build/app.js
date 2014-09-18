@@ -1842,7 +1842,8 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     events: {
-        'click @ui.nav [data-trigger]': 'selectEditor'
+        'click @ui.nav [data-trigger]': 'selectEditor',
+        'click @ui.nav [data-load-repo]': 'startRepoSearch'
     },
 
     initialize: function(options) {
@@ -1925,7 +1926,6 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     setActiveEditor: function(activeEditor) {
-        console.log('activeEditor', activeEditor);
         this.model.set('active_editor', activeEditor);
     },
 
@@ -1978,7 +1978,6 @@ module.exports = Backbone.Marionette.LayoutView.extend({
     },
 
     handleCursorChange: function(data) {
-        console.log('cursor changed', data);
         var editor = this.editors[data.editor];
         editor.setSelection(data.changes.start, data.changes.end);
     },
@@ -1987,6 +1986,11 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         _.each(this.editors, function(editor) {
             editor.setOption('readOnly', !user.get('active'));
         })
+    },
+
+    startRepoSearch: function() {
+        var repo = prompt("What is the repo?");
+        this.socket.emit('fetch-contents', repo);
     },
 
 });

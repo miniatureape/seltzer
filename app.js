@@ -118,4 +118,8 @@ io.sockets.on('connection', function (socket) {
         delete sockets[socket.id];
     });
 
+    socket.on('fetch-contents', function(repo) {
+        console.log("fetching contents", repo);
+    });
+
 });

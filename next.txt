@@ -1,3 +1,4 @@
+NEXT: Make request to github from node and return response to client.
 
 1. When the active user types, it shows up on everyone's machine.
 2. When an inactive user types, nothing happens.
@@ -9,3 +10,5 @@
 7. Paste, backspacing etc work as expected.
 8. The user can see a preview off the tabs.
 9. Tabs can be prepulated with files from a github repo.
+
+

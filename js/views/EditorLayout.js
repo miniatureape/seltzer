@@ -8,7 +8,7 @@ module.exports = Backbone.Marionette.LayoutView.extend({
         htmlEditor: '[data-editor="html"]',
         cssEditor: '[data-editor="css"]',
         nav: '[data-editor-nav]',
-        triggers: '[data-trigger]'
+        triggers: '[data-editor-trigger]'
     },
 
     events: {

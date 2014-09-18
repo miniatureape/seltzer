@@ -32,9 +32,14 @@
         </script>
         <script type="text/html" id="editor-layout-tpl">
             <div data-editor-nav class="nav-inline editor-nav border-bottom">
-                <a class="trigger active" data-trigger="js">javascript</a>
-                <a class="trigger" data-trigger="html">html</a>
-                <a class="trigger" data-trigger="css">css</a>
+                <div class="pull-left">
+                    <a class="trigger active" data-trigger="js">javascript</a>
+                    <a class="trigger" data-trigger="html">html</a>
+                    <a class="trigger" data-trigger="css">css</a>
+                </div>
+                <div class="pull-right">
+                    <a class="trigger">Load Files</a>
+                </div>
             </div>
             <div class="editor js" data-editor="js"></div>
             <div class="editor html" data-editor="html"></div>
